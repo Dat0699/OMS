@@ -1,0 +1,39 @@
+.section-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.section-col {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.label-type-1 {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.big-label {
+  font-size: 60px;
+  font-weight: 700;
+  letter-spacing: 15px;
+  font-family: Roboto;
+  color: rgb(0, 29, 252);
+}
+
+.link {
+  font-size: 15px;
+  font-weight: 400;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.link:hover {
+  transition: all linear 100ms;
+  color: rgb(80, 185, 241);
+  text-decoration: underline;
+}

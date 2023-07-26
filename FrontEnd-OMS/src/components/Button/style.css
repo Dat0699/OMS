@@ -1,0 +1,22 @@
+.button {
+    width: 160px;
+    height: 40px;
+    background-color: rgb(12, 202, 235);
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 30px;
+}
+
+.button:hover {
+    transition: all linear 300ms;
+    filter: brightness(1.1);
+}
+
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: rgb(12, 202, 235);
+    opacity: 0.8; /* Firefox */
+    margin: 0
+  }

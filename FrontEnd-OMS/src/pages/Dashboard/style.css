@@ -1,0 +1,25 @@
+.dashboard-page {
+    color: #004aad;
+    position: relative;
+}
+
+.sub-page {
+    position: absolute;
+    top: 5%;
+    background: #38b6ff;
+    height: calc(100vh - 200px);
+    width: calc(100vw - 300px);
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.item-label {
+    transition: all 150ms linear;
+    width: 350px;
+}
+
+.item-label:hover {
+    box-shadow: 1px 1px 1px 1px #004aad(0, 0, 0, 0.2);
+    transform: scale(1.2);
+    filter: brightness(1.2);
+}

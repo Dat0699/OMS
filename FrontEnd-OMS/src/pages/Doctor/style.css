@@ -1,0 +1,8 @@
+.doctor-page {
+    top: 30px;
+    position: relative;
+    height: 80vh;
+    left: 5%;
+    width: calc(100% - 170px);
+    background-color: white;
+}

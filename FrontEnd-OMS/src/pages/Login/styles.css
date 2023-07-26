@@ -1,0 +1,20 @@
+.login-page {
+    width: 100vw;
+    height: 100vh;
+    background-image: url(../../assets/picture/login-bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-page  .form-login {
+
+}
+
+
+.login-lage .form-login .input-valid {
+    width: 120px;
+}
