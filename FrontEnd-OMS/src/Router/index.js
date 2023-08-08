@@ -14,7 +14,7 @@ const RouteConfig = {
     '/login' : Login,
     '/doctor': DoctorPage,
     '/patient': PatientPage,
-    '/dashboard': Dashboard,
+    '/': Dashboard,
     "/setting": Setting
 }[path]  
 
