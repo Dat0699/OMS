@@ -18,3 +18,8 @@
 .login-lage .form-login .input-valid {
     width: 120px;
 }
+
+.label-filed {
+    margin: 53px !important;
+    margin-bottom: 220px !important;
+}
