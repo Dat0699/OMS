@@ -6,3 +6,25 @@
     width: calc(100% - 170px);
     background-color: white;
 }
+
+.modal-title-patient {
+    z-index: 20;
+    position: fixed;
+    background: white;
+    height: 49px;
+    top: 41px;
+    width: calc(100% - 124px);
+}
+
+
+.table-patient {
+    width: calc(100% - 510px) !important;
+    height: 80vh;
+    position: absolute;
+    left: 15%;
+    top: 15%;
+}
+
+.body-table-patient {
+    height: calc(100% - 100px);
+}
