@@ -16,9 +16,11 @@ import {
     PopoverContent,
     IconButton,
     Typography,
-    List
+    List,
+    Tooltip
 } from "@material-tailwind/react";
 import ModalAddMedicine from './ModalAddMedicine'
+import DescMedicine from './DescMedicine'
 import { uploadFile } from '../../Request/axios'
 import { newConsultation, updateConsultation } from './function'
 
@@ -38,6 +40,8 @@ function TrashIcon() {
         </svg>
     );
 }
+
+
 
 const ModalConsultation = (props) => {
     const { detailPatient, reloadListConsultation, detailConsultation, onCloseDataOutSide, reloadListPatient } = props;
@@ -122,6 +126,8 @@ const ModalConsultation = (props) => {
         onCloseDataOutSide()
     }
 
+    console.log('state', state);
+
     const onCreateNewConsultation = async () => {
         const data = {
             patientId: detailPatient?._id,
@@ -135,11 +141,9 @@ const ModalConsultation = (props) => {
 
         const rs = await newConsultation(data);
         if (rs.status === 200) {
-            await reloadListConsultation();
             alert('Them thanh cong');
-            setTimeout(() => {
-                onCloseModalConsultation()
-            }, 50)
+            onCloseModalConsultation()
+            await reloadListConsultation();
         }
     }
 
@@ -157,8 +161,8 @@ const ModalConsultation = (props) => {
         const rs = await updateConsultation(detailConsultation?._id, data);
         if (rs.status === 200) {
             alert('Cap nhat thanh cong');
-            await reloadListConsultation();
             onCloseModalConsultation()
+            await reloadListConsultation();
         }
     }
 
@@ -209,7 +213,7 @@ const ModalConsultation = (props) => {
                                 <span className="font-semibold text-xl">Đơn thuốc</span>
                                 <ModalAddMedicine open={state?.isShowPopover} handler={onOpenModalMedicine} onCreated={onAddMedicine} />
                             </div>
-                            <List className="!max-h-[440px] overflow-auto">
+                            <List className="!max-h-[440px] overflow-auto relative">
                                 {state?.medicines?.map((item, index) => {
                                     return (
                                         <ListItem className="flex gap-2">
@@ -224,6 +228,9 @@ const ModalConsultation = (props) => {
                                             </ListItemSuffix>
                                             <ListItemSuffix>
                                                 {item?.period}
+                                            </ListItemSuffix>
+                                            <ListItemSuffix>
+                                               <DescMedicine value={item?.descMedicine}/>
                                             </ListItemSuffix>
                                             <ListItemSuffix>
                                                 <IconButton variant="text" color="blue-gray" onClick={() => onRemoveMedicine(index)}>

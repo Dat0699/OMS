@@ -4,12 +4,17 @@ import instance from "../../Request/axios"
     export const getListPatient = async (data) => {
         const user = JSON.parse(localStorage.getItem('user-info'));
         console.log('user?.role', user?.role);
-        const typeListPatient = {
+        let typeListPatient = {
             'BS' : '/patient/doctor/full/s',
             'TN' : '/patient/full/s',
             'TK' : '/patient/full/tk/s'
         }[user?.role || 'BS'];
-        const rs = await instance.post(typeListPatient, {name: (data?.name || "")});
+
+        if(user?.isAdmin) {
+            typeListPatient = '/patient/full/s'
+        }
+
+        const rs = await instance.post(typeListPatient, {status: data?.status || '' ,name: (data?.name || ""), pageNumber: data?.pageNumber});
         return rs?.data;
     }
 

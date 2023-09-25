@@ -1,7 +1,8 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import ListIcon from "../../assets/icon/list.svg";
 import ListPeopleIcon from "../../assets/icon/list-people.svg";
 import SettingIcon from "../../assets/icon/setting.svg";
+import { getDetailUser } from '../Doctor/funciton'
 
 import "./style.css"
 
@@ -19,9 +20,17 @@ const Dashboard = () => {
         { label: "Cài Đăt", path: "/setting", icon: SettingIcon, isShow: true},
     ]
 
-    useLayoutEffect(() => {
+    const onGetFullInfo = async () => {
+        const rs = await getDetailUser(userInfo?._id);
+        console.log('rs', rs);
+        localStorage?.setItem('user-info', JSON.stringify(rs?.data));
+    }
+
+    useEffect(() => {
         if(!token) {
             window.location.pathname = '/login'
+        } else {
+            onGetFullInfo()
         }
     }, [token]);
 

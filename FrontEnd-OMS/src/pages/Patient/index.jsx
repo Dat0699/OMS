@@ -19,21 +19,22 @@ import {
   IconButton,
   Tooltip,
 } from "@material-tailwind/react";
+import ReactPaginate from 'react-paginate';
  
 import "./style.css"
 
 const TABS = [
     {
       label: "Tất cả",
-      value: "1",
+      value: "",
     },
     {
       label: "Mới",
-      value: "2",
+      value: "NEW",
     },
     {
       label: "Tái khám",
-      value: "3",
+      value: "RE-EXAM",
     },
   ];
    
@@ -41,12 +42,12 @@ const TABS = [
    
 const PatientPage = () => {
     const userInfo = JSON.parse(localStorage.getItem("user-info"));
-    console.log('userInfo?.role', userInfo?.role);
-    const isAddRole = ["TN", "TK"].indexOf(userInfo?.role) >= 0;
+    const isAddRole = (["TN", "TK"].indexOf(userInfo?.role) >= 0 || userInfo?.isAdmin);
     const [state, setState] = useState({
         listPatient: [],
         debounce: false,
-        detailPatient: {}
+        detailPatient: {},
+        search: ''
     })
 
     const [open, setOpen] = React.useState(false);
@@ -55,20 +56,19 @@ const PatientPage = () => {
     const closeDrawer = () => setOpen(false);
    
 
-    const handleGetListPatient = async (name = '') => {
-        const rs = await getListPatient({name});
+    const handleGetListPatient = async (name = '', status='', pageNumber = 0) => {
+        const rs = await getListPatient({name, status, pageNumber});
         if(rs?.message) {
             console.log('rs', rs?.data);
-            setState({...state, listPatient: rs.data?.data})
+            setState({...state, listPatient: rs.data?.data, pageSetting: {pageLength: rs?.data?.pageLength, pageNumber: rs?.data?.pageNumber, totalLength: rs?.data?.totalLength}})
         } 
         if(rs?.message == 'No Patient found') {
             setState({...state, listPatient: []})
-
         }
     }
 
     useEffect(() => {
-        handleGetListPatient()
+        handleGetListPatient('', '', 0);
     }, []);
 
     let throttleSearch;
@@ -77,15 +77,16 @@ const PatientPage = () => {
             clearTimeout(throttleSearch);
         }
         throttleSearch = setTimeout( async () => {
+            state.search = value.target.value;
             await handleGetListPatient(value.target.value);
         }, 350);
     }
 
-    const onSelectPatient = async (patient) => {
+    const onSelectPatient = async (patient, mode = '') => {
       if(!patient?._id && !patient) return;
       const rs = await getDetailPatient((patient?._id || patient));
       if(rs?.status === 200 || rs?.data?._id) {
-        setState({...state, detailPatient: rs?.data});
+        setState({...state, detailPatient: rs?.data, mode});
       }
     }
 
@@ -93,8 +94,21 @@ const PatientPage = () => {
       setState({...state, detailPatient: {}});
     }
 
+    const onChangeStatusPatient = async (e) => {
+      console.log('e', e);
+        await handleGetListPatient(state.search, e);;
+    }
+
+    const onChangePage = async (e) => {
+        await handleGetListPatient(state?.search, '', e?.selected);
+    }
+
+    const onPageActive = (e) => {
+      const curPage = e?.selected + 1
+    }
+
     return (
-        <Card className="h-full w-full table-patient">
+        <Card className="w-full h-full w-full table-patient">
         <CardHeader floated={false} shadow={false} className="rounded-none">
           <div className="mb-8 flex items-center justify-between gap-8">
             <div>
@@ -105,20 +119,20 @@ const PatientPage = () => {
               </Typography>
             </div>
             <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-              <PatientModal reloadListPatient={handleGetListPatient} detailPatient={state.detailPatient} onCloseModal={onCloseModal} disabled={!isAddRole}/>
+              <PatientModal reloadListPatient={handleGetListPatient} detailPatient={state.detailPatient} onCloseModal={onCloseModal} disabled={(state.mode === "detail" || !isAddRole)} mode={state.mode}/>
             </div>
           </div>
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row !mb-[33px]">
-            <Tabs value="all" className="w-full md:w-max">
-              <TabsHeader>
+            <Tabs value="all" className="w-[300px] h-[80px]" >
+              <TabsHeader className="">  
                 {TABS.map(({ label, value }) => (
-                  <Tab key={value} value={value}>
+                  <Tab key={value} value={value} onClick={() => onChangeStatusPatient(value)}>
                     &nbsp;&nbsp;{label}&nbsp;&nbsp;
                   </Tab>
                 ))}
               </TabsHeader>
             </Tabs>
-            <div className="w-full md:w-72">
+            <div className="w-full md:w-72 mb-[40px]">
               <Input
                 onChange={onSearch}
                 label="Tìm kiếm"
@@ -127,14 +141,11 @@ const PatientPage = () => {
             </div>
           </div>
         </CardHeader>
-        <CardBody className="overflow-scroll px-0 body-table-patient">
-          <table className="mt-4 w-full min-w-max table-auto text-left">
-            <thead>
-              <tr>
+        <thead className="!w-full flex justify-start !gap-[135px] absolute !top-[156px] !z-[99]" style={{background: 'grey'}}>
                 {TABLE_HEAD.map((head) => (
                   <th
                     key={head}
-                    className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                    className=" p-4"
                   >
                     <Typography
                       variant="small"
@@ -145,8 +156,10 @@ const PatientPage = () => {
                     </Typography>
                   </th>
                 ))}
-              </tr>
             </thead>
+        <CardBody className="overflow-scroll px-0 body-table-patient ">
+          <table className="mt-4 w-full min-w-max table-auto text-left relative">
+        
             <tbody>
               {state.listPatient.map(
                 ({ phoneNumber, fullName, birthDate, address, _id, status, createdAt  }, index) => {
@@ -158,9 +171,9 @@ const PatientPage = () => {
    
                   return (
                     <tr key={_id}>
-                      <td className={classes}>
+                      <td className={`${classes}${index == 0 ? ' w-[245px]' : ''}`}>
                         <div className="flex items-center gap-3">
-                          <Avatar src={""} alt={fullName} size="sm" />
+                          {/* <Avatar src={""} alt={fullName} size="sm" onClick={() => onSelectPatient(_id, 'detail')}/> */}
                           <div className="flex flex-col">
                             <Typography
                               variant="small"
@@ -183,7 +196,7 @@ const PatientPage = () => {
                           </Typography>
                         </div>
                       </td>
-                      <td className={classes}>
+                      <td className={`${classes} absolute right-[760px] !border-b-0 `}>
                         <div className="w-max">
                           <Chip
                             variant="ghost"
@@ -194,7 +207,7 @@ const PatientPage = () => {
                         </div>
                       </td>
                     
-                      <td className={classes}>
+                      <td className={`${classes} absolute right-[530px] !border-b-0 `}>
                         <Typography
                           variant="small"
                           color="blue-gray"
@@ -204,7 +217,7 @@ const PatientPage = () => {
                         </Typography>
                       </td>
 
-                      <td className={classes}>
+                      <td className={`${classes} absolute right-[270px] !border-b-0 `}>
                         <div className="flex flex-col">
                             <Typography
                               variant="small"
@@ -216,7 +229,7 @@ const PatientPage = () => {
                           </div>
                       </td>
                       
-                      <td className={classes}>
+                      <td className={`${classes} absolute right-[20px] !border-b-0 `}>
                         <Tooltip content="Chỉnh sửa">
                           <IconButton variant="text" onClick={() => onSelectPatient(_id)}>
                             <PencilIcon className="h-4 w-4" />
@@ -231,17 +244,17 @@ const PatientPage = () => {
           </table>
         </CardBody>
         <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
-          <Typography variant="small" color="blue-gray" className="font-normal">
-            Trang 1 trên 10
-          </Typography>
-          <div className="flex gap-2">
-            <Button variant="outlined" size="sm">
-              Trước
-            </Button>
-            <Button variant="outlined" size="sm">
-              Tiếp
-            </Button>
-          </div>
+        <ReactPaginate
+            onPageActive={onPageActive}
+            className="flex gap-12 p-6 rounded-md w-full justify-between paginate"
+            breakLabel="..."
+            nextLabel="Kế >"
+            onPageChange={onChangePage}
+            // pageRangeDisplayed={0}
+            pageCount={Math.floor(state?.pageSetting?.totalLength / state?.pageSetting?.pageLength) + ((state?.pageSetting?.totalLength / state?.pageSetting?.pageLength > 1 && state?.pageSetting?.totalLength / state?.pageSetting?.pageLength < 2) ? 1 : 0)}
+            previousLabel="< Trước"
+            disableInitialCallback
+          />
         </CardFooter>
         </Card>
     )

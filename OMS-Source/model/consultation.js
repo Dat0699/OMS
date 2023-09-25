@@ -1,17 +1,30 @@
 /** @format */
 
 const mongoose = require("mongoose");
+
 const ConsultationSchema = new mongoose.Schema(
   {
     patientId: { type: String, required: true },
-    medicineIds: { type: [String] },
-    userIds: { type: [String], required: true },
-
-    acitvityIds: { type: [String], required: true },
+    medicines: { type: [{
+      name:  { type: String },
+      amount: { type: Number },
+      unit: {type: String},
+      period: {type: String},
+      descMedicine: {type: String}
+    }] },
     description: { type: String },
-    status: { type: String, default: "New", enum: ["New", "ReExamination"] },
-
-    total: { type: Number },
+    userId: { type: String, required: true },
+    userId2: { type: String },
+    generalHealth: {
+      bloodPressure:  { type: Number },
+      sugarLevel:     { type: Number },
+      heartRate:      { type: Number },
+      temperature:    { type: Number },
+      weight:         { type: Number },
+      height:         { type: Number },
+    },
+    attachment: {type: [String]},
+    status: { type: Number, default: 1, enum: [1, 2] },
   },
   { timestamps: true }
 );

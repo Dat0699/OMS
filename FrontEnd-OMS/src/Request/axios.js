@@ -2,6 +2,7 @@ import axios from 'axios';
 
 
 const ORIGIN = "http://ggvh.myddns.me";
+// const ORIGIN = "http://localhost";
 const PORT = "5702";
 
 const userToken = localStorage.getItem("user-token");

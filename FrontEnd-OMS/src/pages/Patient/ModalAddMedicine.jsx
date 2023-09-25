@@ -21,7 +21,6 @@ import {
 import SelectMedicine from '../../components/SelectMedicine';
 import SelectUnit from '../../components/SelectUnit';
 import SelectPeriod from '../../components/SelectPeriod';
-
 const ModalAddMedicine = (props) => {
     const {open, onCreated } = props;
     const [ state, setState ] = useState({
@@ -38,6 +37,7 @@ const ModalAddMedicine = (props) => {
         data.amount = state.amount;
         data.unit = state.unit;
         data.period = state.period;
+        data.descMedicine = state.descMedicine;
         onCreated(data);
         onCloseModal();
     }
@@ -58,10 +58,11 @@ const ModalAddMedicine = (props) => {
                 {/* <div className="cursor-pointer pl-3 hover:underline" onClick={() => onCollapseInfo('collapseInfo', !state.collapseInfo)}>{state?.collapseInfo ? 'Ẩn thông tin cá nhân' : "Hiện thông tin cá nhân"}</div> */}
                 <DialogBody className="flex">
                     <div className="flex flex-col gap-5 w-full">
-                        <SelectMedicine onChange={(value) => setState({...state, name: value})}/>
-                        <Input label="Số lượng" type='number' onChange={(e) => setState({...state, amount: e.target.value})}/> 
-                        <SelectUnit onChange={(value) => setState({...state, unit: value})}/>
-                        <SelectPeriod onChange={(value) => setState({...state, period: value})}/>
+                        <SelectMedicine onChange={(value) => setState({...state, name: value?.name, amount: value?.amount, unit: value?.unit, period: value?.period})}/>
+                        <Input label="Số lượng" type='number' onChange={(e) => setState({...state, amount: e.target.value})} value={state?.amount}/>
+                        <Input label="Dặn dò thuốc uống" type='text' onChange={(e) => setState({...state, descMedicine: e.target.value})} value={state?.descMedicine}/> 
+                        <SelectUnit onChange={(value) => setState({...state, unit: value})} value={state?.unit}/>
+                        <SelectPeriod onChange={(value) => setState({...state, period: value})} value={state?.period}/>
                     </div>
                 </DialogBody>
                 <DialogFooter className="">

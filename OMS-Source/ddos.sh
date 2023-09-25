@@ -15,16 +15,16 @@
 # --compressed & 
 #   done
 
-for((i = 0; i < 2000; i++)); do
+for((i = 0; i < 500000; i++)); do
 curl -s -L -X POST "localhost:5000/api/medicines/add" \
 -H "access-device: 123123" \
--H "user-token: b4af5e6e3a9e21e81f22cc33" \
+-H "user-token: abc241738365f80c9a3fcb50" \
 -H "Content-Type: application/json" \
 --data-raw "{
-    \"name\":\"ssss${i}\",
-    \"typeMedicineIds\":\"headed\",
-    \"entryPrice\": 5,
-    \"unit\": 1000
+    \"name\":\"sasdad2312dsasdas3ssd2asdasdasd1asdasdasdasdadasds${i}\",
+    \"typeMedicineIds\":\"he12aded\",
+    \"entryPrice\": 10000,
+    \"unit\": 2000
 }" \
 --compressed & 
   done

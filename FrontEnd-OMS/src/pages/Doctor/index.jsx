@@ -19,9 +19,12 @@ import {
     IconButton,
     Tooltip,
 } from "@material-tailwind/react";
+import ReactPaginate from 'react-paginate';
+import SelectFalcuty from "../../components/SelectFalcuty";
+import SelectRole from "../../components/SelectRole";
 
 import "./style.css"
-import { getListtDoctorFaculty } from './funciton'
+import { getListtDoctorFaculty, getDetailUser } from './funciton'
 
 const TABLE_HEAD = ["Họ và tên", "Email", "Số điện thoại","Ngày vào làm", "Chỉnh sửa"];
 
@@ -41,12 +44,12 @@ const DoctorPage = () => {
     const closeDrawer = () => setOpen(false);
 
 
-    const handleGetListDoctor = async (search = '') => {
-        const rs = await getListtDoctorFaculty({ search });
+    const handleGetListDoctor = async (search = '', pageNumber = 0, faculty = '', role = '') => {
+        const rs = await getListtDoctorFaculty({ search, pageNumber, faculty, role });
         if (rs?.message) {
             console.log(' rs.data', rs.data);
-            const isData = rs.data.length >= 0;
-            setState({ ...state, listDoctor: isData ? rs.data: [] })
+            const isData = rs.data?.data?.length >= 0;
+            setState({ ...state, listDoctor: isData ? rs.data?.data : [], pageSetting: {pageLength: rs.data?.pageLength, totalLength: rs.data?.totalLength, pageNumber:rs.data?.pageNumber}  })
         }
         if (rs?.message == 'No user found') {
             setState({ ...state, listDoctor: [] })
@@ -64,55 +67,68 @@ const DoctorPage = () => {
             clearTimeout(throttleSearch);
         }
         throttleSearch = setTimeout(async () => {
-            await handleGetListDoctor(value.target.value);
+            // state.search = value.target.value;
+            await handleGetListDoctor(value.target.value, state.pageSetting.pageNumber - 1, state?.faculty);
         }, 350);
     }
 
     const onSelectDoctor = async (patient) => {
         if (!patient?._id && !patient) return;
-        // const rs = await getDetailPatient((patient?._id || patient));
-        // if (rs?.status === 200 || rs?.data?._id) {
-        //     setState({ ...state, detailPatient: rs?.data });
-        // }
+        const rs = await getDetailUser((patient?._id || patient));
+        if (rs?.status === 200 || rs?.data?._id) {
+            setState({ ...state, detailDoctor: rs?.data });
+        }
     }
 
     const onCloseModal = () => {
-        setState({ ...state, detailPatient: {} });
+        setState({ ...state, detailDoctor: {} });
+    }
+
+    const onChangePage = async (e) => {
+        await handleGetListDoctor(state?.search, e?.selected);
+    }
+
+    const onChangeFalucty = async (value) => {
+        state.falcuty =value;
+        await handleGetListDoctor(state?.search, state.pageSetting.pageNumber - 1, value)
+    }
+
+    const onChangeRole = async (value) => {
+        state.role = value;
+        await handleGetListDoctor(state?.search, state.pageSetting.pageNumber - 1, state?.falcuty, value)
     }
 
     return (
         <Card className="h-full w-full table-patient">
-            <CardHeader floated={false} shadow={false} className="rounded-none">
-                <div className="mb-8 flex items-center justify-between gap-8">
-                    <div>
+            <CardHeader floated={false} shadow={false} className="rounded-none relative">
+                <div className="flex items-center justify-between gap-1">
+                    <div className="flex">
                         <Typography variant="h5" color="blue-gray">
                             Danh sách bác sĩ
                         </Typography>
+                      
                         <Typography color="gray" className="mt-1 font-normal">
                         </Typography>
                     </div>
                     <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                        <DoctorModal reloadlistDoctor={handleGetListDoctor} detailPatient={state.detailPatient} onCloseModal={onCloseModal} disabled={!isAddRole} />
+                        <DoctorModal reloadlistDoctor={handleGetListDoctor} detailDoctor={state.detailDoctor} onCloseModal={onCloseModal} disabled={!isAddRole} />
                     </div>
                 </div>
-                <div className="flex flex-col items-center justify-between gap-4 md:flex-row !mb-[33px]">
-                    <div className="w-full md:w-72">
-                        <Input
-                            onChange={onSearch}
-                            label="Tìm kiếm"
-                            icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-                        />
-                    </div>
+                <div className="w-full !max-w-[500px] flex gap-12 h-28">
+                    <Input
+                        onChange={onSearch}
+                        label="Tìm kiếm"
+                        icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                    />
+                 
                 </div>
+               
             </CardHeader>
-            <CardBody className="overflow-scroll px-0 body-table-patient">
-                <table className="mt-4 w-full min-w-max table-auto text-left">
-                    <thead>
-                        <tr>
+            <thead className="w-full z-[80] top-[-19px] flex justify-start gap-[200px]" style={{background: 'grey'}}>
                             {TABLE_HEAD?.map((head) => (
                                 <th
                                     key={head}
-                                    className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                    className="border-blue-gray-100 p-4"
                                 >
                                     <Typography
                                         variant="small"
@@ -123,8 +139,20 @@ const DoctorPage = () => {
                                     </Typography>
                                 </th>
                             ))}
-                        </tr>
-                    </thead>
+                </thead>
+            <CardBody className="overflow-scroll px-0 body-table-patient">
+                <div className="w-full !max-w-[500px] flex gap-12 h-28 z-[99] absolute top-[73px] left-[575px]">
+                    {userInfo?.isAdmin && (
+                        <SelectFalcuty onChange={onChangeFalucty} className='absolute'/>
+                    )}
+
+                    {userInfo?.isAdmin && (
+                        <SelectRole onChange={onChangeRole}/>
+                    )}
+                </div>
+               
+                <table className="mt-[-10px] w-full min-w-max table-auto text-left">
+                  
                     <tbody>
                         {state?.listDoctor?.map(
                             ({ email, fullName, birthDate, phoneNumber, _id, age, avatar, createdAt }, index) => {
@@ -132,6 +160,7 @@ const DoctorPage = () => {
                                 const classes = isLast
                                     ? "p-4"
                                     : "p-4 border-b border-blue-gray-50";
+                                    console.log('createdAt', createdAt);
                                 createdAt = createdAt?.match(/\d{1,4}\-\d{1,2}\-\d{1,2}/g)?.[0] || "";
 
                                 return (
@@ -209,17 +238,17 @@ const DoctorPage = () => {
                 </table>
             </CardBody>
             <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
-                <Typography variant="small" color="blue-gray" className="font-normal">
-                    Trang 1 trên 10
-                </Typography>
-                <div className="flex gap-2">
-                    <Button variant="outlined" size="sm">
-                        Trước
-                    </Button>
-                    <Button variant="outlined" size="sm">
-                        Tiếp
-                    </Button>
-                </div>
+                <ReactPaginate
+                // onPageActive={onPageActive}
+                className="flex gap-16 p-6 rounded-md w-full justify-center paginate"
+                breakLabel="..."
+                nextLabel="Kế >"
+                onPageChange={onChangePage}
+                // pageRangeDisplayed={0}
+                pageCount={Math.floor(state?.pageSetting?.totalLength / state?.pageSetting?.pageLength) + 1}
+                previousLabel="< Trước"
+                disableInitialCallback
+            />
             </CardFooter>
         </Card>
     )

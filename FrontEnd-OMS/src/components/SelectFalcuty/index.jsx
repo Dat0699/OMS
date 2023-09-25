@@ -1,5 +1,5 @@
 import { Select, Option } from "@material-tailwind/react";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 const SelectFalcuty = (props) => {
     const falcuties = [
@@ -8,12 +8,12 @@ const SelectFalcuty = (props) => {
         {value: 'M',   label: 'Mắt'},
         {value: 'PS',  label: 'Phụ sản'},
     ]
-    const {onChange, value, disabled} = props;
+    const {onChange, value, disabled, className = ''} = props;
     const [ state, setState ] = useState({
         value: ''
     })
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         state.value = value;
         setState({...state});
     }, [value])
@@ -25,10 +25,10 @@ const SelectFalcuty = (props) => {
         setState({...state});
     }
     return (
-        <Select value={state?.value} variant="outlined" label="Chọn khoa" onChange={onSelectFalcuty} disabled={disabled}>
+        <Select value={state?.value} variant="outlined" label="Chọn khoa" onChange={onSelectFalcuty} disabled={disabled} defaultValue={state?.value} className={`${className}`}>
             {falcuties.map(item => {
                 return (
-                    <Option key={item?.value} value={item?.value}>{item.label}</Option>
+                    <Option key={item?.value} value={item?.value} className="!z-[99px]">{item.label}</Option>
                 )
             })}
         </Select>

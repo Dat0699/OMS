@@ -17,7 +17,7 @@ export const logout = async () => {
     const rs = await instance.post("/users/logout", {token});
     localStorage.removeItem("user-token");
     localStorage.removeItem("user-info");
-    window.location.pathname = '/login';
+    window.location.pathname='/login';
     return rs?.data;
 }
 
@@ -26,7 +26,7 @@ export const getListtDoctorFaculty = async (data) => {
     
     if(isAdmin == true) {
         console.log('123');
-        data.faculty = "ALL";
+        // data.faculty = "ALL";
     } else {
         console.log('456');
         data.faculty = userInfo?.faculty;
@@ -37,6 +37,16 @@ export const getListtDoctorFaculty = async (data) => {
 
 export const createNewAccount = async (data) => {
     const rs = await instance.post("users/register", data);
+    return rs?.data;
+}
+
+export const updateUser = async (data, id) => {
+    const rs = await instance.put(`users/${id || data?._id}`, data);
+    return rs?.data;
+}
+
+export const getDetailUser = async (id) => {
+    const rs = await instance.get(`users/${id}`);
     return rs?.data;
 }
 

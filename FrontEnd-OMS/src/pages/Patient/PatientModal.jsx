@@ -20,7 +20,7 @@ import ModalConsultation from './ModalConsultation'
 import { newPatient, updatePatient, getListConsultation, getDetailConsultation } from './function'
 
 const PatientModal = (props) => {
-  const { reloadListPatient, detailPatient, onCloseModal, disabled } = props;
+  const { reloadListPatient, detailPatient, onCloseModal, disabled, mode } = props;
 
   const [open, setOpen] = React.useState(false);
   const [state, setState] = React.useState({
@@ -129,7 +129,8 @@ const PatientModal = (props) => {
     if (!detailPatient?._id) return;
     console.log('reloadListConsultation', detailPatient?._id);
     const rs = await getListConsultation(detailPatient?._id);
-    if(rs?.status == 200) {
+    console.log('rs', rs);
+    if (rs?.status == 200) {
       setState({ ...state, listConsultation: rs?.data });
     }
   }
@@ -153,7 +154,7 @@ const PatientModal = (props) => {
 
   return (
     <>
-      {(["TN", "TK"].indexOf(userInfo.role) >= 0 || userInfo.isAdmin) && (
+      {(["TN", "TK"].indexOf(userInfo?.role) >= 0 || userInfo.isAdmin) && (
         <Button className='' onClick={handleOpen} variant="gradient">
           Thêm bệnh nhân
         </Button>
@@ -163,8 +164,8 @@ const PatientModal = (props) => {
           <span>
             {titleModal}
           </span>
-          {(detailPatient?._id && userInfo.role !== "TN") && (
-            <ModalConsultation detailPatient={detailPatient} reloadListConsultation={handleGetListConsultation} detailConsultation={state?.detailConsultation} onCloseDataOutSide={() => setState({ ...state, detailConsultation: {} })} reloadListPatient={reloadListPatient}/>
+          {((detailPatient?._id && (userInfo?.role !== "TN" || userInfo.isAdmin)) && mode !== 'detail') && (
+            <ModalConsultation detailPatient={detailPatient} reloadListConsultation={handleGetListConsultation} detailConsultation={state?.detailConsultation} onCloseDataOutSide={() => setState({ ...state, detailConsultation: {} })} reloadListPatient={reloadListPatient} />
           )}
         </DialogHeader>
         {detailPatient?._id && (
@@ -179,7 +180,7 @@ const PatientModal = (props) => {
             <SelectGender onChange={(value) => onValueStateChange('gender', value)} value={state?.gender} disabled={disabled} />
             <Textarea label="Chẩn đoán" onChange={(e) => onValueStateChange('diagnose', e.target.value)} value={state?.diagnose} disabled={disabled} />
             <SelectFalcuty onChange={onChangeFalcuty} value={state?.falcuty} disabled={disabled} />
-            <SelectDoctors falcuty={state.falcuty} value={state?.doctor} onSeclect={onChangeDoctor} disabled={disabled} />
+            <SelectDoctors falcuty={state.falcuty} value={state?.doctor} onSeclect={onChangeDoctor} disabled={disabled} listData={state?.listData} />
           </DialogBody>
         </Collapse>
 

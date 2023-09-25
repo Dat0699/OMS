@@ -12,3 +12,14 @@ export const login = async (data) => {
     } catch(e) {
     }
 }
+
+export const checkAuth = async (qr) => {
+    if(qr && typeof qr === 'string') {
+        try {
+            const rs = await instance.post(`/users/checkAuth`, {code:qr})
+            return rs;
+        } catch(e) {
+            console.log('e >>>>>>>>>>', e);
+        }
+    }
+}

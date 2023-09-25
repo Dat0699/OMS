@@ -37,3 +37,13 @@
   color: rgb(80, 185, 241);
   text-decoration: underline;
 }
+
+.paginate .selected {
+  background: rgb(189, 192, 255) !important;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+}

@@ -6,3 +6,9 @@
     width: calc(100% - 170px);
     background-color: white;
 }
+
+.rightSettingSide {
+    background: url('https://img.freepik.com/premium-vector/hospital-building-healthcare-cartoon-background-vector-illustration-with-ambulance-car-doctor-patient-nurses-medical-clinic-exterior_2175-1515.jpg?w=2000');
+    background-size: cover;
+    background-repeat: no-repeat;
+}

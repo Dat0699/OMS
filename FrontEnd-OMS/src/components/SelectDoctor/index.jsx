@@ -1,22 +1,21 @@
 
-import React, { useEffect, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Select, Option } from "@material-tailwind/react";
 import { getListSelectDoctor } from '../../pages/Doctor/funciton'
+
 const SelectDoctors = (props) => {
  
-    const { falcuty, onSeclect, value, disabled } = props;
+    const { falcuty, onSeclect, value, disabled, listData = [] } = props;
     const [ state, setState ] = useState({
         listData: [],
         value
     })
-
-
+    console.log('value', value);
     const handleGetListDoctor = async (name = '') => {
         const rs = await getListSelectDoctor(falcuty, name);
         if(rs?.status === 200) {
-            let listData = [];
-            for (let i = 0; i < rs?.data?.length; i++) {
-                const curItem = rs?.data[i];
+            for (let i = 0; i < rs?.data?.data?.length; i++) {
+                const curItem = rs?.data?.data[i];
                 if(curItem?._id) {
                     listData.push({
                         label: curItem?.fullName,
@@ -24,36 +23,52 @@ const SelectDoctors = (props) => {
                     })
                 }
             }
-            setState({...state, listData: listData})
+            setState(prev => ({...prev, listData: listData}))
         } else {
-            setState({...state, listData: []})
-            
+            setState(prev => ({...prev, listData: []}))
         }
     }
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if(!falcuty) return;
         handleGetListDoctor();
-        state.value = value;
-    }, [falcuty, value])
+    }, [falcuty, state.listData.length, JSON.stringify(state.listData)])
 
 
     const onSelectDoctor = (value) => {
-        if(onSeclect) {
+        console.log('onSeclect', value);
+        setState(prev => ({...prev, value: value}))
+        if(onSeclect && typeof onSeclect === 'function') {
             onSeclect(value)
         }
-        state.value = value;
-        setState({...state});
     }
 
+    const OptionMemo = useMemo(() => {
+        return Option
+    }, [state.value, value, JSON.stringify(state), falcuty])
+
+    const onRenderValue = (value) => {
+        console.log('run');
+        const rs = state?.listData.map(i => {
+            if(i?.value === value) {
+                return i?.label
+            }
+        })
+        return rs;
+    }
+    console.log('value', value);
     return (
-        <Select value={state?.value} variant="outlined" label={!falcuty ? 'Chọn bác sĩ (Vui lòng chọn khoa !)' : 'Chọn bác sĩ'} disabled={!falcuty || disabled} onChange={onSelectDoctor}>
-            {state.listData.map(item => {
+        <div>
+        <Select value={onRenderValue(state?.value)} defaultValue={onRenderValue(state?.value)} variant="outlined" label={!falcuty ? 'Chọn bác sĩ (Vui lòng chọn khoa !)' : 'Chọn bác sĩ'} disabled={!falcuty || disabled}>
+            {state.listData?.map(item => {
                 return (
-                    <Option key={item?.value} value={item?.value}>{item?.label}</Option>
+                    <option className='!h-8 !cursor-pointer hover:bg-[#bcbaba]' key={item?.value} value={item?.value} onClick={(e) => {e.stopPropagation(); e.preventDefault(); onSelectDoctor(item?.value)}}>{item?.label}</option>
                 )
             })}
         </Select>
+        <div className='text-sm mt-2 font-bold'> Bác sĩ đảm nhiệm : {onRenderValue(value)}</div>
+
+        </div>
     )
 }
 

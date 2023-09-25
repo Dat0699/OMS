@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 const SelectRole = (props) => {
     const units = [
         {value: 'BS', label: 'Bác sĩ'},
-        {value: 'BSXN', label: 'Gói'},
+        {value: 'BSXN', label: 'Bác sĩ xét nghiêm'},
         {value: 'TN',   label: 'Tiếp nhận'},
         {value: 'TK',   label: 'Trưởng khoa'},
     ]
